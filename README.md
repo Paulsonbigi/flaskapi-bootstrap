@@ -9,20 +9,20 @@
 # Install packages
 pip install
 
-# Create a new migration after changing a model
+### Create a new migration after changing a model
 alembic revision --autogenerate -m "add users table"
 
-# Apply all pending migrations to the DB
+### Apply all pending migrations to the DB
 alembic upgrade head
 
-# Roll back the last migration
+### Roll back the last migration
 alembic downgrade -1
 
-# Roll back all migrations
+### Roll back all migrations
 alembic downgrade base
 
-# See current migration status
+### See current migration status
 alembic current
 
-# See migration history
+### See migration history
 alembic history
