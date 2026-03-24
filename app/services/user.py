@@ -9,7 +9,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
 class UserService:
     def __init__(self, db: Session):
         self.user_repo = UserRepository(db)
@@ -17,6 +16,7 @@ class UserService:
         self.db = db
 
     def register(self, payload: RegisterUser):
+        logger.info(f"account registration begins for ${payload.email}")
         email_exists = self.user_repo.find_one(email=payload.email)
         if email_exists:
             raise AppException(
@@ -28,17 +28,21 @@ class UserService:
         hashed_password = self.helper_service.password_hash(password=payload.password)
 
         user = self.user_repo.create(
-            email=payload.email,
+            email=payload.email.lower(),
             first_name=payload.first_name,
             last_name=payload.last_name,
             password=hashed_password,
         )
         self.db.commit()
         self.db.refresh(user)
+        logger.info(f"account registration successful for ${payload.email}")
+
         return { "message": 'Account creation successful' }
 
     def login(self, payload: RegisterUser) -> LoginResponse:
-        user = self.user_repo.find_one(email=payload.email)
+        logger.info(f"account login begins for ${payload.email}")
+
+        user = self.user_repo.find_one(email=payload.email.lower())
         print(user, payload.email)
         if user is None:
             raise AppException(
@@ -57,6 +61,7 @@ class UserService:
                 error_code= ErrorCode.EMAIL_ALREADY_EXISTS,
             )
         access_token = self.helper_service.create_access_token(user_id = user.id)
+        logger.info(f"account login successful for ${payload.email}")
         # return { 'user': user, 'access_token': access_token }
         return {
             "access_token": access_token,
