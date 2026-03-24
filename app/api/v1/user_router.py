@@ -1,19 +1,17 @@
 from fastapi import APIRouter, Depends
-from app.services.user import UserService
+from app.services import UserService
+from app.schemas import UserResponse
 from app.dependencies import get_current_user_id, get_user_service
 
-router = APIRouter()
-
-userService = Depends(get_user_service)
-user_id = Depends(get_current_user_id)
+router = APIRouter(dependencies=[Depends(get_current_user_id)])
 
 @router.get(
     "/me",
-    # response_model=TokenResponse,
+    response_model=UserResponse,
     summary="User profile",
 )
 def get_me(
-    user_id: int = user_id,
-    service: UserService = userService,
+    user_id: int = Depends(get_current_user_id),
+    service: UserService = Depends(get_user_service)
 ):
-    return service.get_by_id(user_id)
+    return service.me(user_id = user_id)

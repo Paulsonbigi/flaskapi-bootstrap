@@ -2,9 +2,8 @@ from sqlalchemy.orm import Session
 from starlette import status
 from app.core import HelperService
 from app.exceptions import ErrorCode, AppException
-from app.models import Users
 from app.repository import UserRepository
-from app.schemas import RegisterUser, LoginResponse
+from app.schemas import RegisterUser, LoginResponse, UserResponse
 import logging
 
 logger = logging.getLogger(__name__)
@@ -62,9 +61,20 @@ class UserService:
             )
         access_token = self.helper_service.create_access_token(user_id = user.id)
         logger.info(f"account login successful for ${payload.email}")
-        # return { 'user': user, 'access_token': access_token }
         return {
             "access_token": access_token,
             "token_type": "bearer",
             "user": user,
         }
+
+
+    def me(self, user_id: int) -> UserResponse:
+        user = self.user_repo.find_by_id(user_id)
+        if user is None:
+            raise AppException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Invalid account",
+                error_code= ErrorCode.USER_NOT_FOUND,
+            )
+        logger.info(f"account profile retrieved successfully for ${user_id}")
+        return user
