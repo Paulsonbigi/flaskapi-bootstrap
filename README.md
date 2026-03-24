@@ -7,7 +7,7 @@
 <!-- pip install <package> && pip freeze > requirements.txt -->
 
 # Install packages
-pip install
+pip install -r requirements.txt
 
 # Start the app
 uvicorn app.main:app --reloa
