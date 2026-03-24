@@ -10,7 +10,7 @@
 pip install -r requirements.txt
 
 # Start the app
-uvicorn app.main:app --reloa
+uvicorn app.main:app --reload
 
 ### Create a new migration after changing a model
 alembic revision --autogenerate -m "add users table"
