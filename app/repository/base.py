@@ -77,14 +77,19 @@ class BaseRepository(Generic[ModelType]):
         order_dir: str = "asc",
         skip: int = 0,
         limit: int = 100,
+        search: str | None = None,
+        search_fields: list[str] | None = None,
     ) -> list[ModelType]:
+        from sqlalchemy import or_
+
         query = self.db.query(self.model)
 
+        # Apply equality filters
         if filters:
             for field, value in filters.items():
                 column = getattr(self.model, field, None)
                 if column is None:
-                    raise RepositoryException(f"'{field}' is not a valid column on {self.model.__name__}")
+                    raise RepositoryException(f"'{field}' is not a valid column")
                 if value is None:
                     query = query.filter(column.is_(None))
                 elif isinstance(value, list):
@@ -92,13 +97,29 @@ class BaseRepository(Generic[ModelType]):
                 else:
                     query = query.filter(column == value)
 
+        # Apply search across multiple fields with ILIKE (case-insensitive)
+        if search and search_fields:
+            valid_columns = [
+                getattr(self.model, field)
+                for field in search_fields
+                if hasattr(self.model, field)
+            ]
+
+            if valid_columns:  # avoid empty OR()
+                search_term = f"%{search}%"
+                query = query.filter(
+                    or_(*[col.ilike(search_term) for col in valid_columns])
+                )
+
+        # Apply ordering
         if order_by:
             column = getattr(self.model, order_by, None)
             if column is None:
-                raise RepositoryException(f"Cannot order by '{order_by}' on {self.model.__name__}")
+                raise RepositoryException(f"Cannot order by '{order_by}'")
             query = query.order_by(desc(column) if order_dir.lower() == "desc" else asc(column))
 
-        return query.offset(skip).limit(min(limit, 1000)).all()
+        return query.offset(skip).limit(min(limit, 100)).all()
+
 
     def count(self, **filters) -> int:
         query = self.db.query(self.model)
@@ -118,13 +139,25 @@ class BaseRepository(Generic[ModelType]):
         filters: dict | None = None,
         order_by: str | None = None,
         order_dir: str = "asc",
+        search: str | None = None,
+        search_fields: list[str] | None = None,
     ) -> dict:
         page = max(1, page)
         page_size = min(page_size, 100)
         skip = (page - 1) * page_size
-        items = self.find_all(filters=filters, order_by=order_by, order_dir=order_dir, skip=skip, limit=page_size)
-        total = self.count(**(filters or {}))
+
+        items = self.find_all(
+            filters=filters,
+            order_by=order_by,
+            order_dir=order_dir,
+            skip=skip,
+            limit=page_size,
+            search=search,
+            search_fields=search_fields,
+        )
+        total = self.count(filters=filters, search=search, search_fields=search_fields)
         total_pages = max(1, -(-total // page_size))
+
         return {
             "items":       items,
             "total":       total,

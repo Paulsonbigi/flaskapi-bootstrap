@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status, UploadFile, File
 
-from app.schemas import LoginUser, RegisterUser, UserResponse
+from app.schemas import LoginUser, RegisterUser, LoginResponse
 from app.services import UserService
 from app.dependencies import get_user_service
 
@@ -21,7 +21,7 @@ async def register(
 
 @router.post(
     "/login",
-    # response_model=TokenResponse,
+    response_model=LoginResponse,
     summary="Login and receive access token",
 )
 async def login(

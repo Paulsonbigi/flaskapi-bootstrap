@@ -17,5 +17,11 @@ class UserResponse(BaseModel):
     first_name: str
     last_name: str
     email: str
-    profile_image: str
-    phone_number: str
+    profile_image: str  | None = None
+    phone_number: str | None = None
+
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserResponse

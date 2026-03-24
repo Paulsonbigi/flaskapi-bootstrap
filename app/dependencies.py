@@ -1,8 +1,9 @@
 
-from fastapi import Depends
+from fastapi import Depends, Query
 from sqlalchemy.orm import Session
 from app.core.general import HelperService
 from app.database import get_db
+from app.schemas import PaginationParams, QuestionFilterParams
 from app.services import ChoiceService, QuestionService, UserService
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from app.exceptions import ErrorCode, AppException
@@ -34,3 +35,27 @@ def get_current_user_id(
             error_code=ErrorCode.INVALID_TOKEN,
         )
     return helper.decode_token(token)
+
+def get_pagination(
+    page:      int = Query(default=1,     ge=1),
+    page_size: int = Query(default=10,    ge=1, le=100),
+    order_by:  str = Query(default=None),
+    search:  str = Query(default=None),
+    order_dir: str = Query(default="asc", pattern="^(asc|desc)$"),
+) -> PaginationParams:
+    return PaginationParams(
+        page=page,
+        page_size=page_size,
+        order_by=order_by,
+        order_dir=order_dir,
+        search=search,
+    )
+
+def get_question_filters(
+    pagination:    PaginationParams = Depends(get_pagination),
+    question_text: str = Query(default=None),
+) -> QuestionFilterParams:
+    return QuestionFilterParams(
+        **pagination.model_dump(),
+        question_text=question_text,
+    )

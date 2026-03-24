@@ -3,7 +3,7 @@ from starlette import status
 from app.exceptions import AppException, ErrorCode
 from app.models import Choices, Questions
 from app.repository import ChoiceRepository, QuestionRepository
-from app.schemas import ChoiceBase
+from app.schemas import ChoiceBase, QuestionFilterParams
 
 class QuestionService:
     def __init__(self, db: Session):
@@ -31,9 +31,11 @@ class QuestionService:
             self.db.rollback()
             raise e
     
-    def get_questions(self):
-        db_questions = self.question_repo.find_all()
-        return db_questions
+    def get_questions(self, filters: QuestionFilterParams) -> dict:
+        return self.question_repo.paginate(
+            **filters.to_paginate_kwargs(search_fields=["question_text"]),
+            filters=filters.get_filters(),
+        )
     
     def get_question_by_id(self, question_id: int)-> Questions:
         question = self.question_repo.find_by_id(question_id)
