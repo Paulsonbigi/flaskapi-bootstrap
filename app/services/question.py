@@ -1,5 +1,6 @@
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from starlette import status
+from app.exceptions import AppException, ErrorCode
 from app.models import Choices, Questions
 from app.repository import ChoiceRepository, QuestionRepository
 from app.schemas import ChoiceBase
@@ -37,5 +38,9 @@ class QuestionService:
     def get_question_by_id(self, question_id: int)-> Questions:
         question = self.question_repo.find_by_id(question_id)
         if question is None:
-            raise HTTPException(status_code=404, detail='Question not found')
+            raise AppException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Question not found",
+                error_code= ErrorCode.QUESTION_NOT_FOUND,
+            )
         return question

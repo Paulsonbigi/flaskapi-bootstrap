@@ -1,8 +1,9 @@
 import bcrypt
-from fastapi import HTTPException, status
+from fastapi import status
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
 from app.config import Settings
+from app.exceptions import ErrorCode, AppException
 
 settings = Settings()
 
@@ -40,13 +41,16 @@ class HelperService:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
             user_id = payload.get("sub")
             if user_id is None:
-                raise HTTPException(
+                raise AppException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Invalid token",
+                    error_code= ErrorCode.INVALID_TOKEN,
                 )
             return int(user_id)
         except JWTError:
-            raise HTTPException(
+            raise AppException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid or expired token",
+                detail="Invalid token",
+                error_code= ErrorCode.INVALID_TOKEN,
             )
+        
