@@ -28,4 +28,4 @@ async def login(
     payload: LoginUser,
     service: UserService = Depends(get_user_service),
 ):
-    return await service.login(payload)
+    return service.login(payload)

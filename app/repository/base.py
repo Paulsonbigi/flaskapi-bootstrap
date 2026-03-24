@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import asc, desc
 from app.database import Base, SessionLocal
+from datetime import datetime, timezone
 
 ModelType = TypeVar("ModelType", bound=Base)
 
@@ -189,4 +190,4 @@ class BaseRepository(Generic[ModelType]):
                 f"{self.model.__name__} has no '{deleted_field}' column. Add it to enable soft deletes."
             )
         from datetime import datetime
-        return self.update(id, **{deleted_field: datetime.now(datetime.timezone.utc)})
+        return self.update(id, **{deleted_field: datetime.now(timezone.utc)})

@@ -38,10 +38,22 @@ class UserService:
 
     def login(self, payload: RegisterUser):
         account = self.user_repo.find_one(email=payload.email)
+        print(account, payload.email)
         if account is None:
             raise AppException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Invalid email and password",
                 error_code= ErrorCode.EMAIL_ALREADY_EXISTS,
             )
-        pass
+        verify_password = self.helper_service.verify_password(
+            plain = payload.password, 
+            hashed = account.password
+        )
+        if not verify_password:
+            raise AppException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Invalid  and password",
+                error_code= ErrorCode.EMAIL_ALREADY_EXISTS,
+            )
+        access_token = self.helper_service.create_access_token(user_id = account.id)
+        return { account, access_token}

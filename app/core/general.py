@@ -1,6 +1,6 @@
 import bcrypt
 from fastapi import status
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from jose import jwt, JWTError
 from app.config import Settings
 from app.exceptions import ErrorCode, AppException
@@ -31,14 +31,14 @@ class HelperService:
     def create_access_token(self, user_id: int) -> str:
         payload = {
             "sub": str(user_id),
-            "iat": datetime.now(datetime.timezone.utc),
-            "exp": datetime.now(datetime.timezone.utc) + timedelta(minutes=TOKEN_EXPIRY_MINUTES),
+            "iat": datetime.now(timezone.utc),
+            "exp": datetime.now(timezone.utc) + timedelta(minutes=TOKEN_EXPIRY_MINUTES),
         }
         return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
     def decode_token(self, token: str) -> int:
         try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            payload = jwt.decode(token.credentials, SECRET_KEY, algorithms=[ALGORITHM])
             user_id = payload.get("sub")
             if user_id is None:
                 raise AppException(
