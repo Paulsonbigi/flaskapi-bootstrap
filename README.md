@@ -1,10 +1,13 @@
-python3 -m venv env
-source env/bin/activate
-pip install fastapi sqlalchemy psycopg2-binary uvicorn
+<!-- python3 -m venv env -->
+<!-- source env/bin/activate -->
+<!-- pip install fastapi sqlalchemy psycopg2-binary uvicorn -->
 
-pip freeze > requirements.txt
+<!-- pip freeze > requirements.txt -->
 
-pip install <package> && pip freeze > requirements.txt
+<!-- pip install <package> && pip freeze > requirements.txt -->
+
+# Install packages
+pip install
 
 # Create a new migration after changing a model
 alembic revision --autogenerate -m "add users table"
