@@ -7,5 +7,6 @@ from . import core
 from . import services
 from . import schemas
 from . import middleware
+from . import sources
 
 print("INIT RUNNING")
