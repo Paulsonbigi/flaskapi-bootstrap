@@ -21,3 +21,16 @@ class AlphaVantageSource(BaseDataSource):
         self.base_url = settings.alpha_vantage_base_url
         self.api_key  = settings.alpha_vantage_api_key
         self.timeout  = 15
+
+    @property
+    def name(self):
+        return SourceName.ALPHA_VANTAGE
+
+    def _get(self, params: dict) -> dict | None:
+        """Base HTTP GET with error handling."""
+        params['apikey'] = self.api_key
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                res = await 
+        except:
+            pass
