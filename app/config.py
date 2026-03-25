@@ -37,6 +37,12 @@ class Settings(BaseSettings):
     # CORS
     allowed_origins: list[str] = ["http://localhost:3000"]
 
+    # integrations
+    tiktok_api_key: str = os.getenv("REDIS_URL")
+    tiktok_api_url: str = os.getenv("REDIS_URL")
+    alpha_vantage_base_url: str = os.getenv("ALPHA_VANTAGE_BASE_URL")
+    alpha_vantage_api_key: str = os.getenv("ALPHA_VANTAGE_API_KEY")
+
     @property
     def async_database_url(self) -> str:
         return self.database_url.replace(
