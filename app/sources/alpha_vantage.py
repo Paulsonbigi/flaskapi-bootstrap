@@ -34,25 +34,35 @@ class AlphaVantageSource(BaseDataSource):
 
     async def _get(self, params: dict) -> dict | None:
         """Base HTTP GET with error handling."""
-        # params['apikey'] = self.api_key
+        params['apikey'] = self.api_key
         try:
-            conn = http.client.HTTPSConnection("alpha-vantage.p.rapidapi.com")
-            headers = {
-                "X-RapidAPI-Key": self.api_key,
-                "X-RapidAPI-Host": "alpha-vantage.p.rapidapi.com",
-            }
+            # conn = http.client.HTTPSConnection("alpha-vantage.p.rapidapi.com")
+            # headers = {
+            #     "X-RapidAPI-Key": self.api_key,
+            #     "X-RapidAPI-Host": "alpha-vantage.p.rapidapi.com",
+            # }
 
-            query_string = urlencode(params)
-            logger.info(f">>>>> {query_string} {self.api_key}")
-            conn.request(
-                "GET",
-                f"/query?{query_string}",
-                headers=headers
-            )
-            res = conn.getresponse()
-            data = res.read()
+            # query_string = urlencode(params)
+            # logger.info(f">>>>> {query_string} {self.api_key}")
+            # conn.request(
+            #     "GET",
+            #     f"/query?{query_string}",
+            #     headers=headers
+            # )
+            # res = conn.getresponse()
+            # data = res.read()
 
-            data = json.loads(data.decode("utf-8"))
+            # data = json.loads(data.decode("utf-8"))
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                res = await client.get(
+                    "https://alpha-vantage.p.rapidapi.com/query",
+                    params=params,
+                    headers={
+                        "X-RapidAPI-Key": self.api_key,
+                        "X-RapidAPI-Host": "alpha-vantage.p.rapidapi.com",
+                    }
+                )
+                data = res.json()
             print(data)
                  # Alpha Vantage returns error messages in the body, not HTTP status
             if "Error Message" in data:
@@ -138,12 +148,13 @@ class AlphaVantageSource(BaseDataSource):
  
     async def get_news(self, symbol: str, limit: int = 10) -> list[NewsArticle]:
         data = await self._get({
-            "function": "TIME_SERIES_INTRADAY",
-            "symbol":  symbol,
-            "datatype":    "json",
-            "output_size":     "compact",
-            "interval":     "5min",
+            "function": "NEWS_SENTIMENT",
+            "tickers":  symbol,
+            # "datatype":    "json",
+            "limit":     50,
+            "sort":     "LATEST",
         })
+        print('%%%%%%', data)
         if not data:
             return []
  

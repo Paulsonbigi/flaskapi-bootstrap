@@ -71,14 +71,11 @@ class UserService:
         }
 
 
-    async def me(self, user_id: int) -> UserResponse:
+    def me(self, user_id: int) -> UserResponse:
         user = self.user_repo.find_by_id(user_id)
 
         if user is None:
             raise AppException(...)
-
-        source = await self.registry.get_news('IBM', limit=10)
-        print(source)
 
         logger.info("account profile retrieved successfully for %s", user_id)
 
