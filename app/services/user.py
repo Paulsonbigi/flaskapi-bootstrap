@@ -6,15 +6,12 @@ from app.repository import UserRepository
 from app.schemas import RegisterUser, LoginResponse, UserResponse
 import logging
 
-from app.sources import source_registry
-
 logger = logging.getLogger(__name__)
 
 class UserService:
     def __init__(self, db: Session):
         self.user_repo = UserRepository(db)
         self.helper_service = HelperService()
-        self.registry = source_registry
         self.db = db
 
     def register(self, payload: RegisterUser):
@@ -75,7 +72,11 @@ class UserService:
         user = self.user_repo.find_by_id(user_id)
 
         if user is None:
-            raise AppException(...)
+            raise AppException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Account not found",
+                error_code= ErrorCode.USER_NOT_FOUND,
+            )
 
         logger.info("account profile retrieved successfully for %s", user_id)
 
