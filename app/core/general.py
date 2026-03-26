@@ -2,10 +2,10 @@ import bcrypt
 from fastapi import status
 from datetime import datetime, timezone, timedelta
 from jose import jwt, JWTError
-from app.config import Settings
+from app.config import get_settings
 from app.exceptions import ErrorCode, AppException
 
-settings = Settings()
+settings = get_settings()
 
 SECRET_KEY           = settings.secret_key
 ALGORITHM            = "HS256"

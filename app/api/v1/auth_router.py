@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, status, UploadFile, File
 
 from app.schemas import LoginUser, RegisterUser, LoginResponse
@@ -14,7 +16,7 @@ router = APIRouter()
 )
 async def register(
     payload: RegisterUser,
-    service: UserService = Depends(get_user_service),
+    service: Annotated[UserService, Depends(get_user_service)],
 ):
     return service.register(payload)
 
@@ -26,6 +28,6 @@ async def register(
 )
 async def login(
     payload: LoginUser,
-    service: UserService = Depends(get_user_service),
+    service: Annotated[UserService, Depends(get_user_service)],
 ):
     return service.login(payload)

@@ -1,13 +1,16 @@
 
 from fastapi import Depends, Query
 from sqlalchemy.orm import Session
-from app.core.general import HelperService
+from app.config import Settings, get_settings
+from app.core import HelperService
 from app.database import get_db
 from app.schemas import PaginationParams, QuestionFilterParams
 from app.services import ChoiceService, QuestionService, UserService
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from app.exceptions import ErrorCode, AppException
 from starlette import status
+
+from app.sources.alpha_vantage import AlphaVantageSource
 
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/auth/login", auto_error=False)
 security = HTTPBearer(auto_error=False)
@@ -59,3 +62,8 @@ def get_question_filters(
         **pagination.model_dump(),
         question_text=question_text,
     )
+
+def get_alpha_vantage_source(
+    settings: Settings = Depends(get_settings)
+):
+    return AlphaVantageSource(settings=settings)

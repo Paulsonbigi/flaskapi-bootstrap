@@ -1,7 +1,6 @@
-from functools import lru_cache
+import os
 
 from dotenv import load_dotenv
-import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -10,38 +9,37 @@ load_dotenv()
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file="app/.env",
-        env_file_encoding="utf-8",
-        case_sensitive=False,
+        env_file=".env",
+        # env_file_encoding="utf-8",
+        # case_sensitive=False,
     )
+    # alpha_vantage_base_url: str
 
     # Application
-    app_name: str = os.getenv("APP_NAME")
+    app_name: str
     app_version: str = "1.0.0"
     debug: bool = False
-    environment: str = os.getenv("APP_ENVIRONMENT")
+    environment: str
 
     # Database
-    database_url: str = os.getenv("DATABASE_URL")
-    database_pool_size: int = os.getenv("DATABASE_POOL_SIZE")
-    database_max_overflow: int = os.getenv("DATABASE_MAX_FLOW")
+    database_url: str
+    database_pool_size: int
+    database_max_overflow: int
 
     # Authentication
-    secret_key: str = os.getenv("SECRET_KEY")
-    access_token_expire_minutes: int = os.getenv("ACCESS_TOKEN_EXPIRATION")
-    refresh_token_expire_days: int = os.getenv("REFRESH_TOKEN_EXPIRATION")
+    secret_key: str
+    access_token_expire_minutes: int
+    refresh_token_expire_days: int
 
     # External Services
-    redis_url: str = os.getenv("REDIS_URL")
+    redis_url: str
 
     # CORS
     allowed_origins: list[str] = ["http://localhost:3000"]
 
     # integrations
-    tiktok_api_key: str = os.getenv("REDIS_URL")
-    tiktok_api_url: str = os.getenv("REDIS_URL")
-    alpha_vantage_base_url: str = os.getenv("ALPHA_VANTAGE_BASE_URL")
-    alpha_vantage_api_key: str = os.getenv("ALPHA_VANTAGE_API_KEY")
+    alpha_vantage_base_url: str 
+    alpha_vantage_api_key: str = os.getenv('ALPHA_VANTAGE_API_KEY')
 
     @property
     def async_database_url(self) -> str:
@@ -50,6 +48,6 @@ class Settings(BaseSettings):
         )
 
 
-@lru_cache
+# @lru_cache
 def get_settings() -> Settings:
     return Settings()

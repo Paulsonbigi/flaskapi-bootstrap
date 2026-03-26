@@ -6,12 +6,15 @@ from app.repository import UserRepository
 from app.schemas import RegisterUser, LoginResponse, UserResponse
 import logging
 
+from app.sources import source_registry
+
 logger = logging.getLogger(__name__)
 
 class UserService:
     def __init__(self, db: Session):
         self.user_repo = UserRepository(db)
         self.helper_service = HelperService()
+        self.registry = source_registry
         self.db = db
 
     def register(self, payload: RegisterUser):
@@ -68,13 +71,15 @@ class UserService:
         }
 
 
-    def me(self, user_id: int) -> UserResponse:
+    async def me(self, user_id: int) -> UserResponse:
         user = self.user_repo.find_by_id(user_id)
+
         if user is None:
-            raise AppException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Invalid account",
-                error_code= ErrorCode.USER_NOT_FOUND,
-            )
-        logger.info(f"account profile retrieved successfully for ${user_id}")
+            raise AppException(...)
+
+        source = await self.registry.get_news('IBM', limit=10)
+        print(source)
+
+        logger.info("account profile retrieved successfully for %s", user_id)
+
         return user

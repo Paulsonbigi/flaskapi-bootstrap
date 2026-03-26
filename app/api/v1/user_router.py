@@ -1,3 +1,4 @@
+from typing import Annotated
 from fastapi import APIRouter, Depends
 from app.services import UserService
 from app.schemas import UserResponse
@@ -10,8 +11,8 @@ router = APIRouter(dependencies=[Depends(get_current_user_id)])
     response_model=UserResponse,
     summary="User profile",
 )
-def get_me(
-    user_id: int = Depends(get_current_user_id),
-    service: UserService = Depends(get_user_service)
+async def get_me(
+    user_id: Annotated[int, Depends(get_current_user_id)],
+    service: Annotated[UserService, Depends(get_user_service)],
 ):
-    return service.me(user_id = user_id)
+    return await service.me(user_id=user_id)

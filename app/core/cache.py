@@ -2,12 +2,12 @@ import logging
 import json
 from typing import Any
 from redis import Redis, RedisError
-from app.config import Settings
+from app.config import get_settings
 from urllib.parse import urlparse
 
 
 logger = logging.getLogger(__name__)
-settings = Settings()
+settings = get_settings()
 
 class CacheService:
     def __init__(self):

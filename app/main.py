@@ -3,14 +3,14 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from fastapi import FastAPI
 from app.api import api_router
-from app.config import Settings
+from app.config import get_settings
 from app.database import init_db
 from app.exceptions import register_exception_handlers
 import logging
 
 from app.middleware import RequestLoggingMiddleware
 
-settings = Settings()
+settings = get_settings()
 
 logging.basicConfig(
     level=logging.INFO,

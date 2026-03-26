@@ -1,9 +1,8 @@
-from app.settings import Settings
+from app.config import get_settings
 
-settings = Settings()
+settings = get_settings()
 
 class TiktokIntegration:
-    __init__(self):
-        self.api_key = 
-        pass
+    def __init__(self):
+        self.api_key = settings.alpha_vantage_api_key
 

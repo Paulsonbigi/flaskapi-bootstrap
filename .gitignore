@@ -23,6 +23,7 @@ venv.bak/
 # ──────────────────────────────
 .env
 .env.*
+app/.env.*
 !.env.example        # ← allow the example file through
 
 # ──────────────────────────────

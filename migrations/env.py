@@ -5,13 +5,13 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from app.config import Settings
+from app.config import get_settings
 from app.database import Base
 
 from app.models import Users, Questions, Choices          # noqa: F401
 
 
-settings = Settings()
+settings = get_settings()
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
