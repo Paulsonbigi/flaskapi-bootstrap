@@ -3,7 +3,7 @@ from starlette import status
 from app.core import HelperService
 from app.exceptions import ErrorCode, AppException
 from app.repository import UserRepository
-from app.schemas import RegisterUser, LoginResponse, UserResponse
+from app.schemas import RegisterUser, LoginResponse, UserResponse, LoginUser
 import logging
 
 logger = logging.getLogger(__name__)
@@ -38,12 +38,14 @@ class UserService:
 
         return { "message": 'Account creation successful' }
 
-    def login(self, payload: RegisterUser) -> LoginResponse:
+    def login(self, payload: LoginUser) -> LoginResponse:
+        """Optimize to restrict number of attempts with a window, add locking functionality"""
         logger.info(f"account login begins for ${payload.email}")
 
         user = self.user_repo.find_one(email=payload.email.lower())
         print(user, payload.email)
         if user is None:
+            logger.warning(f"Invalid email ${payload.email}")
             raise AppException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Invalid email and password",
@@ -54,10 +56,11 @@ class UserService:
             hashed = user.password
         )
         if not verify_password:
+            logger.warning(f"Invalid password ${payload.email}")
             raise AppException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="Invalid  and password",
-                error_code= ErrorCode.EMAIL_ALREADY_EXISTS,
+                detail="Invalid email and password",
+                error_code= ErrorCode.INVALID_CREDENTIALS,
             )
         access_token = self.helper_service.create_access_token(user_id = user.id)
         logger.info(f"account login successful for ${payload.email}")
